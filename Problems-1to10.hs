@@ -32,18 +32,34 @@ isPalindrome xs = (xs == myReverse xs)
 -- 7) Flatten a nested list structure.
 data NestedList a = Elem a | List [NestedList a]
 
--- Work in progress
-
--- flatten (Elem x) = [x]
--- flatten (List (x:xs)) = (flatten x) ++ (flatten xs)
+flatten (Elem x) = [x]
+flatten (List []) = []
+flatten (List (x:xs)) = (flatten x) ++ (flatten (List xs))
 
 -- 8) Eliminate consecutive duplicates of list elements.
 
--- Work in progress
-
+compress :: Eq a => [a] -> [a]
 compress = loop []
-    where loop acc [] = acc
+    where loop acc [] = reverse acc
+          loop [] (x:xs) = loop [x] xs
           loop acc@(y:_) (x:xs)
                | x == y = loop acc xs
                | otherwise = loop (x:acc) xs
                    
+-- 9) Pack consecutive duplicates of list elements into sublists. If a list contains repeated elements they should be placed in separate sublists.
+
+-- pack "aaaabccaadeeee" -> ["aaaa", "b", "cc", "aa", "d", "eeee"]
+
+pack :: Eq a => [a] -> [[a]]
+pack = loop []
+       where loop acc [] = reverse acc
+             loop [] (x:xs) = loop [[x]] xs
+             loop acc@(y:ys) (x:xs) = if (head y == x)
+                                      then loop ([(x : y)] ++ ys) xs
+                                      else loop ([x] : acc) xs
+
+-- 10) Run-length encoding of a list. Use the result of problem P09 to implement the so-called run-length encoding data compression method. Consecutive duplicates of elements are encoded as lists (N E) where N is the number of duplicates of the element E.
+
+encode :: Eq b => [b] -> [(Int, b)]
+encode x = zip (map length y) (map head y)
+           where y = pack x
